@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOC Command Center</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">S</div><div><b>SENTINEL</b><span>SOC COMMAND CENTER</span></div></div>
+    <nav>
+      <a class="active">Overview</a><a>Alerts</a><a>Incidents</a><a>Assets</a><a>Threat Intel</a><a>Reports</a>
+    </nav>
+    <div class="side-foot"><span class="dot"></span> Systems operational</div>
+  </aside>
+
+  <main>
+    <header>
+      <div><div class="eyebrow">SECURITY OPERATIONS</div><h1>Command Center</h1><p>Live overview of monitored security events</p></div>
+      <div class="header-actions"><button id="refresh">↻ Refresh</button><div class="user">SA</div></div>
+    </header>
+
+    <section class="metrics">
+      <div class="metric"><span>OPEN ALERTS</span><strong>{{ alerts|length }}</strong><small>Last 24 hours</small></div>
+      <div class="metric critical"><span>CRITICAL</span><strong>{{ counts.Critical }}</strong><small>Immediate attention</small></div>
+      <div class="metric high"><span>HIGH</span><strong>{{ counts.High }}</strong><small>Requires triage</small></div>
+      <div class="metric"><span>ENDPOINTS</span><strong>248</strong><small>2 currently offline</small></div>
+    </section>
+
+    <section class="grid">
+      <div class="panel wide">
+        <div class="panel-head"><div><h2>Recent alerts</h2><span>Prioritized by severity</span></div><button class="ghost" id="all">View all</button></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>ALERT</th><th>TYPE</th><th>SOURCE</th><th>DESTINATION</th><th>SEVERITY</th><th>STATUS</th><th>TIME</th></tr></thead>
+          <tbody>
+          {% for a in alerts %}
+          <tr>
+            <td><b>{{ a.id }}</b></td><td>{{ a.type }}</td><td class="mono">{{ a.source }}</td><td class="mono">{{ a.destination }}</td>
+            <td><span class="badge {{ a.severity|lower }}">{{ a.severity }}</span></td><td>{{ a.status }}</td><td>{{ a.time }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>Threat posture</h2><span>Current environment</span></div></div>
+        <div class="posture"><div class="ring"><b>72</b><span>/ 100</span></div><div><strong>Elevated</strong><p>Multiple high-priority events require analyst review.</p></div></div>
+        <div class="bar"><span style="width:72%"></span></div>
+        <div class="legend"><span><i></i>Normal</span><span><i></i>Elevated</span><span><i></i>Critical</span></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>Event distribution</h2><span>By severity</span></div></div>
+        <div class="distribution">
+          {% for name, value in counts.items() %}
+          <div class="dist-row"><span>{{ name }}</span><div class="track"><i class="{{ name|lower }}" style="width:{{ (value / (alerts|length or 1) * 100)|round }}%"></i></div><b>{{ value }}</b></div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <footer>Sentinel SOC Dashboard · Demo environment · <a href="/health">health</a> · <a href="/api/alerts">API</a></footer>
+  </main>
+</div>
+<script>
+document.getElementById('refresh').onclick=()=>location.reload();
+document.getElementById('all').onclick=()=>alert('Demo mode: showing the latest five synthetic alerts.');
+</script>
+</body>
+</html>
